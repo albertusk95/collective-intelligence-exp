@@ -25,10 +25,30 @@ class crawler:
   
 	# Index an individual page  
 	def addtoindex(self, url, soup):    
-		print 'Indexing %s' % url
+		if self.isindexed(url): 
+			return   			
+		
+		print 'Indexing ' + url
+		
+		# Get the individual words    
+		text = self.gettextonly(soup)   
+		words = self.separatewords(text)
+		
+		# Get the URL id    
+		urlid = self.getentryid('urllist', 'url', url)
+		
+		# Link each word to this url    
+		for i in range(len(words)):      
+			word = words[i]      
+			
+			if word in ignorewords: 
+				continue      
+			
+			wordid = self.getentryid('wordlist', 'word', word)      
+			self.con.execute("insert into wordlocation(urlid, wordid, location) \ values (%d, %d, %d)" % (urlid, wordid, i)) 
 		
 	# Extract the text from an HTML page (no tags)  
-	 def gettextonly(self, soup):      
+	def gettextonly(self, soup):      
 		v = soup.string      
 		
 		if v == None:        
@@ -45,7 +65,8 @@ class crawler:
 		
 	# Separate the words by any non-whitespace character  
 	def separatewords(self, text):    
-		return None
+		splitter = re.compile('\\W*')    
+		return [s.lower() for s in splitter.split(text) if s != ''] 
 	
 	# Return true if this url is already indexed  
 	def isindexed(self, url):    
