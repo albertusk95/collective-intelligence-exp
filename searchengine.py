@@ -1,21 +1,23 @@
 import urllib2 
 from BeautifulSoup import * 
 from urlparse import urljoin
+from pysqlite2 import dbapi2 as sqlite
 
 # Create a list of words to ignore 
 ignorewords = set(['the', 'of', 'to', 'and', 'a', 'in', 'is', 'it']) 
 
-class crawler:  
+class crawler:
+
 	# Initialize the crawler with the name of database  
-	def __init__(self,dbname):    
-		pass
-  
-	def __del__(self):    
-		pass  
+	def __init__(self,dbname):
+		self.con = sqlite.connect(dbname)
 	
-	def dbcommit(self):    
-		pass
-		
+	def __del__(self):
+		self.con.close()
+	
+	def dbcommit(self):
+		self.con.commit()
+
 	# Auxilliary function for getting an entry id and adding  
 	# it if it's not present  
 	def getentryid(self, table, field, value, createnew = True):   
