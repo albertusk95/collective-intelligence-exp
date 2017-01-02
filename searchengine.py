@@ -28,8 +28,20 @@ class crawler:
 		print 'Indexing %s' % url
 		
 	# Extract the text from an HTML page (no tags)  
-	def gettextonly(self, soup):    
-		return None
+	 def gettextonly(self, soup):      
+		v = soup.string      
+		
+		if v == None:        
+			c = soup.contents        
+			resulttext = ''        
+			
+			for t in c:          
+				subtext = self.gettextonly(t)       
+				resulttext += subtext + '\n'        
+			return resulttext      
+		
+		else:        
+			return v.strip()
 		
 	# Separate the words by any non-whitespace character  
 	def separatewords(self, text):    
@@ -80,6 +92,13 @@ class crawler:
 		
 			pages = newpages
 		
-	# Create the database tables  
+	# Create the database tables  	
 	def createindextables(self):    
-		pass
+		self.con.execute('create table urllist(url)')    
+		self.con.execute('create table wordlist(word)')    
+		self.con.execute('create table wordlocation(urlid, wordid, location)')    
+		self.con.execute('create table link(fromid integer, toid integer)')    
+		self.con.execute('create table linkwords(wordid, linkid)')    
+		self.con.execute('create index wordidx on wordlist(word)')    
+		self.con.execute('create index urlidx on urllist(url)')    
+		self.con.execute('create index wordurlidx on wordlocation(wordid)')
